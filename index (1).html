@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Infiltrato – Il Gioco</title>
+  <link rel="icon" type="image/x-icon" href="ico.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:      #08060f;
+      --surface: #0e0b1a;
+      --card:    #130f22;
+      --accent:  #a855f7;
+      --accent2: #7c3aed;
+      --accent3: #c084fc;
+      --gold:    #e879f9;
+      --teal:    #818cf8;
+      --text:    #f3f0fa;
+      --muted:   #7c6f9a;
+      --border:  rgba(168,85,247,0.10);
+      --glow:    rgba(168,85,247,0.35);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.35;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: rgba(8,6,15,0.80);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.1em;
+      color: var(--text);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 1.8rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-dl {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid rgba(168,85,247,0.4);
+      padding: 0.5rem 1.2rem;
+      border-radius: 4px;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .nav-dl:hover { background: var(--accent); color: #fff; }
+
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      nav { padding: 0.9rem 1.2rem; }
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 7rem 1.5rem 4rem;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 55% at 50% -10%, rgba(124,58,237,0.32) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 45% at 15% 80%,  rgba(168,85,247,0.13) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 60%,  rgba(232,121,249,0.09) 0%, transparent 55%),
+        var(--bg);
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(168,85,247,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(168,85,247,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, black 20%, transparent 80%);
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.8rem, 14vw, 14rem);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      position: relative;
+      animation: fadeUp 0.9s 0.05s ease both;
+      white-space: nowrap;
+    }
+    .hero h1 span {
+      display: inline;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+      color: var(--muted);
+      max-width: 500px;
+      line-height: 1.75;
+      margin-top: 1.5rem;
+      font-weight: 300;
+      animation: fadeUp 1s 0.15s ease both;
+      padding: 0 0.5rem;
+    }
+
+    .hero-players {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 1s 0.25s ease both;
+    }
+    .hero-players span { font-size: 0.8rem; font-weight: 500; color: var(--muted); letter-spacing: 0.05em; }
+    .hero-players strong { color: var(--accent3); font-weight: 600; }
+
+    .dl-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      margin-top: 2.8rem;
+      padding: 1.05rem 2.4rem;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 8px 40px var(--glow);
+      animation: fadeUp 1s 0.35s ease both, pulse 3s 2s ease-in-out infinite;
+      max-width: 100%;
+    }
+    .dl-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    }
+    .dl-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 16px 60px rgba(168,85,247,0.55); }
+    .dl-btn svg { flex-shrink: 0; }
+
+    .dl-note {
+      margin-top: 0.9rem;
+      font-size: 0.73rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      animation: fadeUp 1s 0.45s ease both;
+      padding: 0 1rem;
+    }
+
+    /* SECTIONS */
+    section { padding: 5rem 1.5rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 0.67rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.8rem, 4.5vw, 3rem);
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 0.8rem;
+    }
+    .section-title em { font-style: italic; color: var(--accent3); }
+
+    .section-desc {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 600px;
+      margin-bottom: 3rem;
+      font-weight: 300;
+    }
+
+    .divider { width: 50px; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); margin: 0.8rem 0 1.8rem; }
+
+    /* MODES */
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .mode-card { background: var(--card); padding: 2rem 1.6rem; transition: background 0.2s; }
+    .mode-card:hover { background: #1a1430; }
+    .mode-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1.1rem; }
+    .mode-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .mode-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+
+    /* ROLES */
+    .roles-section { background: var(--surface); }
+    .roles-intro { font-size: 1rem; color: var(--muted); line-height: 1.8; max-width: 680px; margin-bottom: 2.5rem; font-weight: 300; }
+    .roles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+
+    .role-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 1.6rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .role-card:hover { transform: translateY(-4px); }
+    .role-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .role-card.civili::before    { background: var(--teal); }
+    .role-card.civili:hover      { border-color: rgba(129,140,248,0.4); }
+    .role-card.undercover::before { background: var(--accent); }
+    .role-card.undercover:hover   { border-color: rgba(168,85,247,0.4); }
+    .role-card.mrwhite::before   { background: #d0c6e8; }
+    .role-card.mrwhite:hover     { border-color: rgba(208,198,232,0.4); }
+
+    .role-badge { display: inline-block; font-size: 0.63rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.22rem 0.7rem; border-radius: 100px; margin-bottom: 0.9rem; }
+    .civili .role-badge    { background: rgba(129,140,248,0.13); color: var(--teal); }
+    .undercover .role-badge { background: rgba(168,85,247,0.13); color: var(--accent); }
+    .mrwhite .role-badge   { background: rgba(208,198,232,0.08); color: #c0b8d8; }
+
+    .role-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.04em; margin-bottom: 0.4rem; }
+    .role-card .obj { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.7rem; opacity: 0.75; }
+    .role-card p { font-size: 0.87rem; color: var(--muted); line-height: 1.7; }
+
+    /* PHASES */
+    .phases-track { display: flex; flex-direction: column; position: relative; }
+    .phases-track::before {
+      content: '';
+      position: absolute;
+      left: 26px;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--accent), var(--teal), var(--gold));
+    }
+    .phase { display: flex; gap: 1.8rem; padding: 2.2rem 0; position: relative; }
+    .phase-num {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .phase:nth-child(1) .phase-num { border-color: var(--accent); color: var(--accent); }
+    .phase:nth-child(2) .phase-num { border-color: var(--teal);   color: var(--teal); }
+    .phase:nth-child(3) .phase-num { border-color: var(--gold);   color: var(--gold); }
+    .phase-content h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; letter-spacing: 0.05em; margin-bottom: 0.6rem; }
+    .phase-content p  { font-size: 0.93rem; color: var(--muted); line-height: 1.8; }
+    .phase-tip { margin-top: 0.8rem; padding: 0.75rem 1rem; background: rgba(168,85,247,0.07); border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0; font-size: 0.84rem; color: rgba(192,132,252,0.9); font-style: italic; }
+
+    /* VICTORY */
+    .victory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .victory-card { padding: 1.8rem 1.5rem; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card); text-align: center; }
+    .victory-pts { font-family: 'Bebas Neue', sans-serif; font-size: 3.8rem; line-height: 1; margin-bottom: 0.3rem; }
+    .victory-card:nth-child(1) .victory-pts { color: var(--teal); }
+    .victory-card:nth-child(2) .victory-pts { color: #d0c6e8; }
+    .victory-card:nth-child(3) .victory-pts { color: var(--accent); }
+    .victory-card h4 { font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .victory-card p  { font-size: 0.84rem; color: var(--muted); line-height: 1.65; }
+
+    /* SPECIALS */
+    .special-section { background: var(--surface); }
+    .special-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1rem; }
+    .special-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 8px; padding: 1.5rem; transition: border-color 0.25s, transform 0.2s; }
+    .special-card:hover { border-color: rgba(168,85,247,0.35); transform: translateY(-3px); }
+    .special-emoji { font-size: 1.9rem; margin-bottom: 0.7rem; }
+    .special-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.35rem; letter-spacing: 0.04em; margin-bottom: 0.55rem; color: var(--accent3); }
+    .special-card p  { font-size: 0.87rem; color: var(--muted); line-height: 1.7; }
+    .special-note { margin-top: 0.75rem; font-size: 0.76rem; color: rgba(129,140,248,0.75); font-style: italic; }
+
+    /* CTA */
+    .cta-section { text-align: center; padding: 7rem 1.5rem; position: relative; overflow: hidden; }
+    .cta-section::before {
+      content: 'INFILTRATO';
+      position: absolute;
+      bottom: -2rem; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 20vw, 18rem);
+      color: rgba(168,85,247,0.03);
+      white-space: nowrap;
+      pointer-events: none;
+      letter-spacing: 0.05em;
+    }
+    .cta-section h2 { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 5vw, 3.2rem); margin-bottom: 1rem; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 2rem 1.5rem; text-align: center; font-size: 0.78rem; color: var(--muted); }
+
+    /* REVEAL */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 8px 40px var(--glow); }
+      50%       { box-shadow: 0 8px 60px rgba(168,85,247,0.6); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 480px) {
+      .hero { padding: 6rem 1rem 3rem; }
+      section { padding: 3.5rem 1rem; }
+      .dl-btn { padding: 1rem 1.6rem; font-size: 0.92rem; width: 100%; }
+      .phases-track::before { display: none; }
+      .special-grid  { grid-template-columns: 1fr; }
+      .victory-grid  { grid-template-columns: 1fr; }
+      .roles-grid    { grid-template-columns: 1fr; }
+      .modes-grid    { grid-template-columns: 1fr; }
+      .phase { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#"><span>IN</span>FILTRATO</a>
+    <ul class="nav-links">
+      <li><a href="#modalita">Modalità</a></li>
+      <li><a href="#ruoli">Ruoli</a></li>
+      <li><a href="#gameplay">Gameplay</a></li>
+      <li><a href="#speciali">Speciali</a></li>
+    </ul>
+    <a class="nav-dl" href="Infiltrato.apk" download="Infiltrato.apk">Scarica APK</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div style="position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; width:100%;">
+      <h1>INFIL<span>TRATO</span></h1>
+
+      <p class="hero-sub">Parole segrete. Identità nascoste. Alleanze fragili. Riesci a trovare l'Infiltrato prima che sia troppo tardi?</p>
+      <div class="hero-players">
+        <span>👥 <strong>3–20</strong> Giocatori</span>
+        <span>📱 <strong>Android</strong> APK</span>
+        <span>🕵️ <strong>Deduzione</strong> Sociale</span>
+      </div>
+      <a class="dl-btn" href="Infiltrato.apk" download="Infiltrato.apk">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Scarica Infiltrato APK
+      </a>
+      <p class="dl-note">File APK per Android · Abilita «Origini sconosciute» nelle impostazioni</p>
+    </div>
+  </section>
+
+  <!-- MODALITÀ -->
+  <section id="modalita">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-label">Come si gioca</p>
+        <h2 class="section-title">Tre modalità di <em>gioco</em></h2>
+        <div class="divider"></div>
+        <p class="section-desc">Che siate tutti in salotto o sparsi per il mondo, Infiltrato si adatta a ogni situazione. Scegliete la modalità più adatta a voi.</p>
+      </div>
+      <div class="modes-grid reveal">
+        <div class="mode-card">
+          <div class="mode-icon" style="background:rgba(129,140,248,0.10);">📲</div>
+          <h3 style="color:var(--teal);">Pass &amp; Play</h3>
+          <p>Tutti nella stessa stanza, un solo telefono. L'app gestisce tutto: passate il dispositivo a turno e che la partita abbia inizio!</p>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon" style="background:rgba(168,85,247,0.10);">🔒</div>
+          <h3 style="color:var(--accent);">Stanza Privata</h3>
+          <p>Ogni giocatore usa il proprio telefono. Potete essere insieme o giocare a distanza con amici fidati tramite una stanza privata.</p>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon" style="background:rgba(232,121,249,0.10);">🌍</div>
+          <h3 style="color:var(--gold);">Stanza Pubblica</h3>
+          <p>Unisciti alla community online e sfida giocatori sconosciuti da tutto il mondo. La partita non finisce mai!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RUOLI -->
+  <section id="ruoli" class="roles-section">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-label">Chi sei?</p>
+        <h2 class="section-title">I Tre <em>Ruoli</em> Principali</h2>
+        <div class="divider"></div>
+        <p class="roles-intro">
+          Ogni partita nasconde tre fazioni. La maggior parte dei giocatori sono pacifici <strong>Civili</strong>, ma tra loro si celano gli <strong>Undercover</strong> e il misterioso <strong>Mr. White</strong>.
+          Ognuno ha parole segrete diverse — e obiettivi opposti.
+        </p>
+      </div>
+      <div class="roles-grid reveal">
+        <div class="role-card civili">
+          <div class="role-badge">Maggioranza</div>
+          <h3>Civili</h3>
+          <p class="obj" style="color:var(--teal);">Obiettivo: Scoprire la propria identità ed eliminare gli avversari</p>
+          <p>I Civili condividono tutti la stessa parola segreta. Devono dedurre chi è l'Infiltrato tra di loro senza rivelare troppo al nemico.</p>
+        </div>
+        <div class="role-card undercover">
+          <div class="role-badge">Infiltrato</div>
+          <h3>Undercover</h3>
+          <p class="obj" style="color:var(--accent);">Obiettivo: Scoprire la propria identità e sopravvivere</p>
+          <p>L'Undercover riceve una parola simile ma diversa da quella dei Civili. Deve mimetizzarsi e sembrare innocente il più a lungo possibile.</p>
+        </div>
+        <div class="role-card mrwhite">
+          <div class="role-badge">Mistero</div>
+          <h3>Mr. White</h3>
+          <p class="obj" style="color:#c0b8d8;">Obiettivo: Sopravvivere o indovinare la parola dei Civili</p>
+          <p>Mr. White non riceve nessuna parola! Deve improvvisare, capire di cosa parlano gli altri e bluffare con maestria assoluta.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAMEPLAY -->
+  <section id="gameplay">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-label">Come funziona</p>
+        <h2 class="section-title">Le Tre <em>Fasi</em> del Gioco</h2>
+        <div class="divider"></div>
+        <p class="section-desc">Ogni round si svolge in tre fasi. Al termine, un giocatore viene eliminato. Si ripete finché una fazione vince.</p>
+      </div>
+      <div class="phases-track reveal">
+        <div class="phase">
+          <div class="phase-num">1</div>
+          <div class="phase-content">
+            <h3 style="color:var(--accent);">Descrizione</h3>
+            <p>Ogni giocatore descrive la propria parola segreta con <strong>una sola parola o frase</strong>. L'ordine parte da un giocatore casuale. Mr. White deve improvvisare senza avere alcuna parola di riferimento!</p>
+            <div class="phase-tip">🎯 Dai indizi ai tuoi alleati senza scoprirti troppo. Ogni parola conta.</div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num">2</div>
+          <div class="phase-content">
+            <h3 style="color:var(--teal);">Discussione</h3>
+            <p>Si apre il dibattito! Chi è sospetto? Chi mente? I Civili cercano gli Infiltrati, gli Undercover cercano di non tradirsi, Mr. White tenta di intuire la parola dei Civili.</p>
+            <div class="phase-tip">💬 Regola d'oro: non esporti troppo presto. Usa charme e astuzia.</div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num">3</div>
+          <div class="phase-content">
+            <h3 style="color:var(--gold);">Eliminazione</h3>
+            <p>Tutti votano chi eliminare. Chi raccoglie più voti viene eliminato. Se è Mr. White, ha ancora una possibilità: se indovina la parola segreta dei Civili, <strong>vince immediatamente</strong>!</p>
+            <div class="phase-tip">⚖️ Se nessuno ha ancora vinto, si ricomincia da capo!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VITTORIA -->
+      <div class="reveal" style="margin-top:4rem;">
+        <p class="section-label">Fine partita</p>
+        <h2 class="section-title">Chi <em>Vince</em>?</h2>
+        <div class="divider"></div>
+        <div class="victory-grid">
+          <div class="victory-card">
+            <div class="victory-pts">2</div>
+            <div style="font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:0.7rem;">punti ciascuno</div>
+            <h4 style="color:var(--teal);">Civili</h4>
+            <p>Vincono eliminando tutti gli Undercover e Mr. White prima di restare in minoranza.</p>
+          </div>
+          <div class="victory-card">
+            <div class="victory-pts">6</div>
+            <div style="font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:0.7rem;">punti</div>
+            <h4 style="color:#d0c6e8;">Mr. White</h4>
+            <p>Vince sopravvivendo fino alla fine oppure indovinando la parola segreta dei Civili all'eliminazione.</p>
+          </div>
+          <div class="victory-card">
+            <div class="victory-pts">10</div>
+            <div style="font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:0.7rem;">punti</div>
+            <h4 style="color:var(--accent);">Undercover</h4>
+            <p>Gli Infiltrati vincono se restano in vita finché rimane solo un Civile. Altissimo rischio, altissima ricompensa.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECIALI -->
+  <section id="speciali" class="special-section">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-label">Modalità avanzate</p>
+        <h2 class="section-title">I Ruoli <em>Speciali</em></h2>
+        <div class="divider"></div>
+        <p class="section-desc">Aggiungi un tocco di caos e strategia con questi ruoli unici. Ogni partita diventa imprevedibile!</p>
+      </div>
+      <div class="special-grid reveal">
+        <div class="special-card">
+          <div class="special-emoji">⚖️</div>
+          <h3>Dea della Giustizia</h3>
+          <p>La sua identità viene rivelata all'inizio. In caso di pareggio nei voti, decide lei chi eliminare — anche dopo essere stata eliminata!</p>
+        </div>
+        <div class="special-card">
+          <div class="special-emoji">💕</div>
+          <h3>Gli Amanti</h3>
+          <p>Due giocatori si innamorano segretamente. Se uno viene eliminato, l'altro lo segue. Possono essere sulla stessa squadra o su fronti opposti!</p>
+          <p class="special-note">⚙️ Attivabile da 5 giocatori</p>
+        </div>
+        <div class="special-card">
+          <div class="special-emoji">🤡</div>
+          <h3>Mr. Meme</h3>
+          <p>A ogni round, un giocatore casuale deve descrivere la parola solo con gesti — senza parlare! Ideale se siete tutti nella stessa stanza.</p>
+          <p class="special-note">⚙️ Solo per giocatori fisicamente presenti</p>
+        </div>
+        <div class="special-card">
+          <div class="special-emoji">💢</div>
+          <h3>La Vendicatrice</h3>
+          <p>Quando viene eliminata, trascina con sé un altro giocatore! Può essere Civile, Undercover o persino Mr. White. Un'arma a doppio taglio.</p>
+          <p class="special-note">⚙️ Attivabile da 5 giocatori</p>
+        </div>
+        <div class="special-card">
+          <div class="special-emoji">⚔️</div>
+          <h3>I Duellanti</h3>
+          <p>Due giocatori si sfidano in un duello segreto! Il primo dei due a essere eliminato perde 2 punti, l'altro ne guadagna 2. Sana competizione!</p>
+          <p class="special-note">⚙️ Attivabile da 5 giocatori</p>
+        </div>
+        <div class="special-card">
+          <div class="special-emoji">👻</div>
+          <h3>Il Fantasma</h3>
+          <p>I giocatori eliminati continuano a partecipare: possono discutere, suggerire e votare. Un elemento strategico dall'aldilà!</p>
+        </div>
+        <div class="special-card">
+          <div class="special-emoji">🧆</div>
+          <h3>Venditore di Falafel</h3>
+          <p>A ogni round consegna un falafel a un giocatore. Può portare protezione… o un piccolo sabotaggio. Prova la tua fortuna!</p>
+          <p class="special-note">⚙️ Attivabile da 4 giocatori</p>
+        </div>
+        <div class="special-card">
+          <div class="special-emoji">🪃</div>
+          <h3>Il Boomerang</h3>
+          <p>La prima volta che riceve la maggioranza dei voti, li rimanda contro chi li ha espressi! Dopo, diventa un giocatore normale.</p>
+        </div>
+        <div class="special-card">
+          <div class="special-emoji">🃏</div>
+          <h3>Il Buffone Gioioso</h3>
+          <p>Se è il <strong>primo</strong> giocatore eliminato, ottiene 4 punti bonus! L'unico ruolo in cui perdere subito è una vittoria segreta.</p>
+        </div>
+        <div class="special-card" style="border-color:rgba(168,85,247,0.04); background:rgba(168,85,247,0.02);">
+          <div class="special-emoji">✨</div>
+          <h3 style="color:var(--muted);">Altri in arrivo…</h3>
+          <p style="color:rgba(124,111,154,0.65);">Il gioco continua ad espandersi con nuovi ruoli speciali. Scarica l'ultima versione per restare aggiornato!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BOTTOM -->
+  <section class="cta-section">
+    <div class="reveal">
+      <p class="section-label" style="text-align:center;">Pronto a giocare?</p>
+      <h2>Scarica subito e<br><em style="font-family:'DM Serif Display',serif; font-style:italic; color:var(--accent3);">inizia a infiltrarti</em></h2>
+      <p style="color:var(--muted); font-size:1rem; margin-bottom:2.5rem; font-weight:300;">Gratuito · Android · Nessuna pubblicità</p>
+      <a class="dl-btn" style="animation:none; margin:0 auto;" href="Infiltrato.apk" download="Infiltrato.apk">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Scarica Infiltrato APK
+      </a>
+      <p class="dl-note" style="animation:none;">File APK per Android · Abilita «Origini sconosciute» nelle impostazioni del tuo dispositivo</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p style="margin-bottom:0.5rem;">
+      <a href="#" style="font-family:'Bebas Neue',sans-serif; letter-spacing:0.1em; color:var(--text); text-decoration:none;">
+        <span style="color:var(--accent);">IN</span>FILTRATO
+      </a>
+    </p>
+    <p>Ispirato a Undercover · Tutti i diritti riservati</p>
+  </footer>
+
+  <script>
+    const reveals = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          const children = entry.target.querySelectorAll(
+            '.mode-card, .role-card, .special-card, .victory-card'
+          );
+          children.forEach((child, i) => {
+            child.style.transitionDelay = `${i * 0.07}s`;
+          });
+        }
+      });
+    }, { threshold: 0.08 });
+    reveals.forEach(el => obs.observe(el));
+  </script>
+</body>
+</html>
